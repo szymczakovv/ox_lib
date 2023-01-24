@@ -33,7 +33,7 @@ package = {
         __newindex = noop,
         __metatable = false,
     }),
-    path = ('./%s/?.lua;./?.lua;'):format(context)
+    path = ('./?.lua;'):format(context)
 }
 
 local _require = require
