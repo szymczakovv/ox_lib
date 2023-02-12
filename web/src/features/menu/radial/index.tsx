@@ -44,9 +44,15 @@ const useStyles = createStyles((theme) => ({
       cursor: 'pointer',
     },
   },
+  centerIconContainer: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    pointerEvents: 'none',
+  },
   centerIcon: {
     color: '#fff',
-    pointerEvents: 'none',
   },
 }));
 
@@ -74,15 +80,9 @@ const RadialMenu: React.FC = () => {
     setMenu({ ...menu, items: data });
   });
 
-  const handleClick = async (index: number) => {
-    fetchNui('radialClick', index);
-    // TODO: shouldClose
-    setVisible(false);
-  };
-
   return (
     <>
-      <Box className={classes.wrapper}>
+      <Box className={classes.wrapper} onContextMenu={() => menu.sub && fetchNui('radialBack')}>
         <ScaleFade visible={visible}>
           <svg width="350px" height="350px" transform="rotate(90)">
             {/*Fixed issues with background circle extending the circle when there's less than 3 items*/}
@@ -102,7 +102,7 @@ const RadialMenu: React.FC = () => {
                   <g
                     transform={`rotate(-${index * pieAngle} 175 175)`}
                     className={classes.sector}
-                    onClick={() => handleClick(index)}
+                    onClick={() => fetchNui('radialClick', index)}
                   >
                     <path
                       d={`M175.01,175.01 l175,0 A175.01,175.01 0 0,0 ${175 + 175 * Math.cos(-degToRad(pieAngle))}, ${
@@ -126,26 +126,28 @@ const RadialMenu: React.FC = () => {
                 </>
               );
             })}
-            {/* TODO: rotate go back icon */}
             <g
               transform={`translate(175, 175)`}
               onClick={() => {
-                setVisible(false);
-                menu.sub && fetchNui('radialBack');
+                if (menu.sub) fetchNui('radialBack');
+                else {
+                  setVisible(false);
+                  fetchNui('radialClose');
+                }
               }}
             >
               <circle r={30} className={classes.centerCircle} />
             </g>
+          </svg>
+          <div className={classes.centerIconContainer}>
             <FontAwesomeIcon
               icon={!menu.sub ? 'xmark' : 'arrow-rotate-left'}
+              fixedWidth
               className={classes.centerIcon}
               color="#fff"
-              width={28}
-              height={28}
-              x={175 - 28 / 2}
-              y={175 - 28 / 2}
+              size="2x"
             />
-          </svg>
+          </div>
         </ScaleFade>
       </Box>
     </>
